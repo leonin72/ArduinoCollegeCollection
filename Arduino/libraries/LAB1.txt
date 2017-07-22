@@ -1,0 +1,78 @@
+.INCLUDE "m328pdef.inc"
+.CSEG
+.ORG 0
+rjmp start
+.ORG 52
+start: ld R0,X+
+stop: rjmp stop
+///////////////
+mov r16,r0 ; Copy r0 to r16
+call check ; Call subroutine
+...
+check: cpi r16,$11 ; Compare r16 to $11
+...
+ret ; Return from subroutine
+///////////////
+clr r31 ; Clear Z high byte
+ldi r30,$F0 ; Set Z low byte to $F0
+lpm ; Load constant from Program
+; memory pointed to by Z
+///////////////
+clr r27 ; Clear X high byte
+ldi r26,$60 ; Set X low byte to $60
+st X+,r0 ; Store r0 in data space loc. $60(X post inc)
+st X,r1 ; Store r1 in data space loc. $61
+ldi r26,$63 ; Set X low byte to $63
+st X,r2 ; Store r2 in data space loc. $63
+st -X,r3 ; Store r3 in data space loc. $62(X pre dec)
+////////////////
+clr r29 ; Clear Y high byte
+ldi r28,$60 ; Set Y low byte to $60
+ld r0,Y+ ; Load r0 with data space loc. $60(Y post inc)
+ld r1,Y ; Load r1 with data space loc. $61
+ldi r28,$63 ; Set Y low byte to $63
+ld r2,Y ; Load r2 with data space loc. $63
+ld r3,-Y ; Load r3 with data space loc. $62(Y pre dec)
+ldd r4,Y+2 ; Load r4 with data space loc. $64
+////////////////
+lds r2,$FF00 ; Load r2 with the contents of data space location $FF00
+add r2,r1 ; add r1 to r2
+sts $FF00,r2 ; Write back
+////////////////
+clr r16 ; Clear r16
+ser r17 ; Set r17
+out $18,r16 ; Write zeros to Port B
+nop ; Wait (do nothing)
+out $18,r17 ; Write ones to Port B
+//////////////////
+ call routine ; Call subroutine
+...
+routine: push r14 ; Save r14 on the Stack
+push r13 ; Save r13 on the Stack
+...
+pop r13 ; Restore r13
+pop r14 ; Restore r14
+ret ; Return from subroutine
+////////////////////////////
+///////////////////////////
+//////////////////////////
+add r1,r2 ; Add r2 to r1 (r1=r1+r2)
+add r28,r28 ; Add r28 to itself (r28=r28+r28)
+//////////////////////////
+subi r22,$11 ; Subtract $11 from r22
+brne noteq ; Branch if r22<>$11
+...
+noteq: nop ; Branch destination (do nothing)
+/////////////////////////
+and r2,r3 ; Bitwise and r2 and r3, result in r2
+ldi r16,1 ; Set bitmask 0000 0001 in r16
+and r2,r16 ; Isolate bit 0 in r2
+/////////////////////////
+sub r11,r0 ; Subtract r0 from r11
+brpl positive ; Branch if result positive
+neg r11 ; Take two’s complement of r11
+positive: nop ; Branch destination (do nothing)
+//////////////////////////
+mul r5,r4 ; Multiply unsigned r5 and r4
+movw r4,r0 ; Copy result back in r5:r4
+//////////////////////////
